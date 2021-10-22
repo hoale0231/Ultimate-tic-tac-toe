@@ -120,10 +120,13 @@ class State:
         if move.x not in range(3) or move.y not in range(3):
             return False
         
+        '''
+        Need to check!
+        
         if self.previous_move and (not self.free_move):
             if(move.index_local_board != (self.previous_move.x * 3 + self.previous_move.y)):
                 return False
-
+        '''
         board_to_move = self.blocks[move.index_local_board]
         return board_to_move[move.x, move.y] == 0 # check if board field not occupied yet
     
