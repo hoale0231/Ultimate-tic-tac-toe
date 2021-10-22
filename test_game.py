@@ -72,7 +72,7 @@ def draw(state: State_2):
     pygame.display.update()
     
 
-def play_step_by_step(player_X, player_O, rule = 1):
+def play_step_by_step(player_X, player_O, rule = 2):
     player_1 = import_module(player_X)
     player_2 = import_module(player_O)
     if rule == 1:
@@ -123,7 +123,7 @@ def play_step_by_step(player_X, player_O, rule = 1):
                         is_game_done = True
                     
 
-def play_auto(player_X, player_O, rule = 1):
+def play_auto(player_X, player_O, rule = 2):
     player_1 = import_module(player_X)
     player_2 = import_module(player_O)
     if rule == 1:
@@ -138,7 +138,7 @@ def play_auto(player_X, player_O, rule = 1):
     while True:
         draw(state)
         # delay drawing
-        # time.sleep(1)
+        time.sleep(1)
         
         for event in pygame.event.get():
             if event.type == QUIT:
