@@ -129,10 +129,10 @@ class State:
     
     
     def act_move(self, move: UltimateTTT_Move):
-        if not self.is_valid_move(move):
-            raise ValueError(
-                "move {0} on local board is not valid".format(move)
-            )
+        # if not self.is_valid_move(move):
+        #     raise ValueError(
+        #         "move {0} on local board is not valid".format(move)
+        #     )
         local_board = self.blocks[move.index_local_board]
         local_board[move.x, move.y] = move.value
         

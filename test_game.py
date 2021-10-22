@@ -83,7 +83,7 @@ def play_step_by_step(player_X, player_O, rule = 1):
     remain_time_X = 120
     remain_time_O = 120
     is_game_done = False
- 
+    flag = 0
     while True:
         draw(state)
         
@@ -93,7 +93,10 @@ def play_step_by_step(player_X, player_O, rule = 1):
                 sys.exit()     
             
             if state.game_over or is_game_done:
-                continue
+                if flag == 2:
+                    flag += 1
+                else:
+                    continue
             
             if event.type == pygame.KEYDOWN:
                 if event.key == K_TAB or event.key == K_RIGHT:
@@ -165,4 +168,4 @@ def play_auto(player_X, player_O, rule = 1):
     
 
 play_auto('random_agent', '_MSSV')
-# play_step_by_step('random_agent', '_MSSV')
+#play_step_by_step('random_agent', '_MSSV', 0)
