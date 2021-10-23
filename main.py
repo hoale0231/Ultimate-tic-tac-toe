@@ -67,7 +67,8 @@ def main(player_X, player_O, rule = 1):
         else:
             winner = 'DRAW'
 
-    new_move = player_1.select_move(cur_state, remain_time_X, winner)
+    cur_state.player_to_move = State.O
+    new_move = player_2.select_move(cur_state, remain_time_O, winner)
         
     return winner
 
@@ -76,7 +77,9 @@ def learn(n):
     xwin = 0
     owin = 0
     for i in range(n):
-        w = main( '_MSSV', 'random_agent')
+        if i % 1000 == 0:
+            print(i)
+        w = main('random_agent','_MSSV')
         if w == 'X':
             xwin += 1
         if w == 'O':
@@ -85,7 +88,7 @@ def learn(n):
     QLearning.save_values()
 
 
-learn(1000)
+learn(100)
 
 #main( '_MSSV', 'random_agent')
 

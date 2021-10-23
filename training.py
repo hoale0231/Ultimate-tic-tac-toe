@@ -226,4 +226,4 @@ def main(player, whoGoFirst=True, level=0, round=1):
         + 7 : "Impossible"
     Parameter 4: number of round.
 '''
-main('_MSSV', True, 0, 5)
+main('_MSSV', True, 7, 5)
