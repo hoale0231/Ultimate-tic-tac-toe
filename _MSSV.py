@@ -1,3 +1,4 @@
+from time import sleep
 import numpy as np
 from pathlib import Path
 import csv
@@ -94,7 +95,7 @@ class QLearning():
                     stateStr += 'X' if cell == 1 else 'O' if cell == -1 else '_'
         if state.previous_move is None:
             return "_"
-        return stateStr + str(state.previous_move.x * 3 + state.previous_move.y)
+        return stateStr
 
     @staticmethod
     def reward(winner):
@@ -123,14 +124,8 @@ class QLearning():
                 curr = QLearning.values[stateStr]
             else:
                 curr = int(0)
-
-            #temp = prev + QLearning.alpha*(R + curr - prev)
             
-            QLearning.values[QLearning.prev_stateStr] = prev + QLearning.alpha*(R + curr - prev)
-
-            # if temp not in {1,-1,0,0.5,-0.5}:
-            #     print(QLearning.values[QLearning.prev_stateStr])
-
+            QLearning.values[QLearning.prev_stateStr] = prev + QLearning.alpha*(R + QLearning.discount_factor*curr - prev)
         QLearning.prev_stateStr = stateStr
 
     @staticmethod
@@ -286,7 +281,6 @@ class Dlearning():
 
     @staticmethod
     def state2array(state):
-
         num_state = []
         for s in state:
             if s == 'X':
@@ -372,103 +366,93 @@ def select_move(cur_state: State, remain_time, winner = None):
         if cur_state.player_to_move == State.X:
             return MoveFirst.selectMove(cur_state)
         else:
-            return alphabeta(cur_state, 4, float('-inf'), float('inf'), State.O)
+            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
     return None
 
-def alphabeta(cur_state, depth, alpha, beta, player):
+def alphabeta(cur_state: State, depth, alpha, beta, player):
     if depth == 0:
         return evalFunction(cur_state), None
 
-    valid_moves = cur_state.get_valid_moves()
+    valid_moves = cur_state.get_valid_moves
     if valid_moves == []:
         return evalFunction(cur_state), None
     if len(valid_moves) == 1:
         return evalFunction(cur_state), valid_moves[0]
-    
+    if depth == 2:
+        print('====================')
     if player == 1:
-        bestMove = None
-        value = float('-inf')
+        bestMove = []
+        bestVal = float('-inf')
         for move in valid_moves:
             newState = deepcopy(cur_state)
             newState.act_move(move)
-            value = max(value, alphabeta(newState, depth - 1, alpha, beta, -player)[0])
-            if value >= beta:
+            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            if depth == 2:
+                print(value)
+            if value > bestVal:
+                bestVal = value
+                bestMove = [move]
+            if value == bestVal:
+                bestMove.append(move)
+            if bestVal >= beta:
                 break
-            if value > alpha:
-                alpha = value
-                bestMove = move
-        return alpha, bestMove
+            if bestVal > alpha:
+                alpha = bestVal 
+        return bestVal, np.random.choice(bestMove)
     else:
         bestMove = None
-        value = float('inf')
-        for move in valid_moves:
+        bestVal = float('inf')
+        for move in valid_moves:    
             newState = deepcopy(cur_state)
             newState.act_move(move)
-            value = min(value, alphabeta(newState, depth - 1, alpha, beta, -player)[0])
-            if value <= alpha:
+            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            if(depth == 2):
+                 print(value)
+            if value < bestVal:
+                bestVal = value
+                bestMove = [move]
+            if value == bestVal:
+                bestMove.append(move)
+            if alpha >= bestVal:
                 break
-            if value < beta:
-                beta = value
-                bestMove = move
-        return beta, bestMove
+            if bestVal < beta:
+                beta = bestVal
+        return bestVal, np.random.choice(bestMove)
 
-def evalFunction(cur_state):
-
-    index_local_board = cur_state.previous_move.x * 3 + cur_state.previous_move.y
-    local_board = cur_state.blocks[index_local_board].reshape(9)
-
-    row_sum = np.sum(cur_state.blocks[index_local_board],1)
-    col_sum = np.sum(cur_state.blocks[index_local_board],0)
-    diagional_Left = local_board[0] + local_board[4] + local_board[8]
-    diagional_Right = local_board[2] + local_board[4] + local_board[6]
-
-    FirstWin = any(row_sum == 3) + any(col_sum == 3)
-    FirstWin += (diagional_Left == 3) + (diagional_Right == 3)
-
-    if FirstWin:
-        return cur_state.X * 100
+def evalFunction(cur_state: State):
+    if cur_state.game_result(cur_state.global_cells.reshape(3,3)) is not None:
+        if cur_state.game_result(cur_state.global_cells.reshape(3,3)) == cur_state.player_to_move:
+            return 100000
+        if cur_state.game_result(cur_state.global_cells.reshape(3,3)) == - cur_state.player_to_move:
+            return -100000
+    #print(cur_state.player_to_move)
+    # dangerous = []
+    # for row in cur_state.global_cells.reshape(3,3):
+    #     if sum(row == )    
+    # row_sum = np.sum(cur_state.global_cells, 1)
+    # col_sum = np.sum(cur_state.global_cells, 0)
+    # diag_sum_topleft = cur_state.global_cells.trace()
+    # diag_sum_topright = cur_state.global_cells[::-1].trace()
     
-    secondWin = any(row_sum == -3) + any(col_sum == -3)
-    secondWin += (diagional_Left == -3) + (diagional_Right == -3)
+    # player_one_wins = any(row_sum == 2) + any(col_sum == 2)
+    # player_one_wins += (diag_sum_topleft == 2) + (diag_sum_topright == 2)
+    
+    total = 0
+    for block in cur_state.blocks:
+        winBonus = 1
+        score = 0
+        if cur_state.game_result(block) != None:
+            winBonus = 10
+        for row in block:
+            for cell in row:
+                if cell == cur_state.player_to_move:
+                    if winBonus > 1: score += 3
+                    else: score -= 1
+                if cell == - cur_state.player_to_move:
+                    score += 3
+        total += score * score * winBonus
+    return total
 
-    if secondWin:
-        return cur_state.O*100
-
-    X2 = 0
-    X1 = 0
-
-    for i in range(0,2):
-        if (row_sum[i] == 1):
-            if (local_board[3*i+1] != -1 and local_board[3*i + 2] != -1 and local_board[3*i] != -1):
-                X1 += 1
-        if (col_sum[i] == 1):
-            if (local_board[i+3] != -1 and local_board[i] != -1 and local_board[i + 6] != -1):
-                X1 += 1
-
-    if (diagional_Left == 1 and local_board[0] != -1 and local_board[4] != -1 and local_board[8] != -1):
-        X1 += 1
-    if (diagional_Right == 1 and local_board[2] != -1 and local_board[4] != -1 and local_board[6] != -1):
-        X1 += 1
-
-
-    O2 = 0
-    O1 = 0
-
-    for i in range(0,2):
-        if (row_sum[i] == -1):
-            if (local_board[3*i+1] != 1 and local_board[3*i + 2] != 1 and local_board[3*i] != 1):
-                O1 += 1
-        if (col_sum[i] == -1):
-            if (local_board[i+3] != 1 and local_board[i] != 1 and local_board[i + 6] != 1):
-                O1 += 1
-
-    if (diagional_Left == -1 and local_board[0] != 1 and local_board[4] != 1 and local_board[8] != 1):
-        O1 += 1
-    if (diagional_Right == -1 and local_board[2] != 1 and local_board[4] != 1 and local_board[6] != 1):
-        O1 += 1
-
-    X2 += np.count_nonzero(row_sum == 2) + np.count_nonzero(col_sum == 2) + diagional_Left == 2 + diagional_Right == 2 
-    O2 += np.count_nonzero(row_sum == -2) + np.count_nonzero(row_sum == -2) + diagional_Left == -2 + diagional_Right == -2
-  
-     
-    return (3*X2 + X1) - (3*O2 + O1) 
+    # value = 0
+    # for block in cur_state.blocks:
+        

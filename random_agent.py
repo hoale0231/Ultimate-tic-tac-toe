@@ -6,7 +6,6 @@ from copy import deepcopy
 
 def select_move(cur_state: State, remain_time):
     valid_moves = cur_state.get_valid_moves 
-    print(valid_moves)
     if len(valid_moves) != 0:
         return alphabeta(cur_state, 4, float('-inf'), float('inf'), cur_state.player_to_move)[1]
     return None
@@ -23,28 +22,30 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
 
     if player == 1:
         bestMove = None
+        bestVal = float('-inf')
         for move in valid_moves:
             newState = deepcopy(cur_state)
             newState.act_move(move)
-            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
-            if value > alpha:
-                alpha = value
-                bestMove = move
-            if alpha >= beta:
+            bestVal = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            if bestVal >= beta:
                 break
-        return alpha, bestMove
+            if bestVal > alpha:
+                alpha = bestVal
+                bestMove = move
+        return bestVal, bestMove
     else:
         bestMove = None
+        bestVal = float('inf')
         for move in valid_moves:    
             newState = deepcopy(cur_state)
             newState.act_move(move)
-            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
-            if value < beta:
-                beta = value
-                bestMove = move
-            if alpha >= beta:
+            bestVal = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            if alpha >= bestVal:
                 break
-        return beta, bestMove
+            if bestVal < beta:
+                beta = bestVal
+                bestMove = move
+        return bestVal, bestMove
 
 def evalFunction(cur_state):
 
