@@ -45,6 +45,7 @@ def select_move(cur_state: State, remain_time, winner = None):
     valid_moves = cur_state.get_valid_moves 
     if len(valid_moves) != 0:
         if cur_state.player_to_move == State.X:
+            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
             return MoveFirst.selectMove(cur_state)
         else:
             return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
@@ -131,6 +132,7 @@ def evalFunction(cur_state: State):
         dangerous = ib in dangerousBlocks
         winBonus = 0
         score = 0
+        flag = np.sum(block == player) > np.sum(block == - player)
         # Check if a block is over
         if cur_state.game_result(block) != None:
             winBonus = 1
@@ -149,6 +151,8 @@ def evalFunction(cur_state: State):
                         score += 6
                     elif dangerous:
                         score -= 3
+                    elif flag:
+                        score += 0
                     else:
                         score += 1
         totalScore += abs(score) * score

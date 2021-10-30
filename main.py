@@ -55,7 +55,7 @@ def main(player_X, player_O, rule = 1):
         #print(cur_state)
         
         turn += 1
-    print('DRAW')
+    #print('DRAW')
     if cur_state.count_X > cur_state.count_O:
         return 'X'
     elif cur_state.count_O > cur_state.count_X:
@@ -66,9 +66,40 @@ def main(player_X, player_O, rule = 1):
     #print("X:", cur_state.count_X)
     #print("O:", cur_state.count_O)
 
+cntX = 0
+cntO = 0
+cntDraw = 0
 for i in range(100):
-    rs = main('random_agent', '_MSSV')
-    if rs != 'O':
-        print(rs) 
+    if i % 10 == 0:
+        print(f'Done: {i}%')
+    rs = main('random_agent', '_1911186')
+    if rs == 'O':
+        cntO += 1
+    if rs == 'X':
+        cntX += 1
+    if rs == 'DRAW':
+        cntDraw += 1
 
- 
+print(f'X Win: {cntX}\n O Win: {cntO}\n Draw:{cntDraw}') 
+
+# cntX = 0
+# cntO = 0
+# cntDraw = 0
+# for i in range(100):
+#     if i % 10 == 0:
+#         print(f'Done: {i/10}%')
+
+#     rs = main('_mssv_quynh', '_1911186')
+#     if rs == 'O':
+#         cntO += 1
+#     if rs == 'X':
+#         cntX += 1
+#     if rs == 'DRAW':
+#         cntDraw == 1
+
+# print(f'X Win: {cntX}\n O Win: {cntO}\n Draw:{cntDraw}') 
+
+'_mssv_quynh'
+'_1911186'
+'random_agent'
+'_1915976'

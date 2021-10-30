@@ -1,3 +1,69 @@
+from state import State, UltimateTTT_Move
+from copy import deepcopy
+import numpy as np
+
+
+
+def select_move(cur_state: State, remain_time, winner = None):
+    valid_moves = cur_state.get_valid_moves 
+    if len(valid_moves) != 0:
+        if cur_state.player_to_move == State.X:
+            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
+            return MoveFirst.selectMove(cur_state)
+        else:
+            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
+    return None
+    
+def alphabeta(cur_state: State, depth, alpha, beta, player):
+    if depth == 0:
+        return evalFunction(cur_state), None
+
+    valid_moves = cur_state.get_valid_moves
+    if valid_moves == []:
+        return evalFunction(cur_state), None
+    if len(valid_moves) == 1:
+        return evalFunction(cur_state), valid_moves[0]
+    #if depth == 2:
+        #print('====================')
+    if player == 1:
+        bestMove = []
+        bestVal = float('-inf')
+        for move in valid_moves:
+            newState = deepcopy(cur_state)
+            newState.act_move(move)
+            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            #if depth == 2:
+                #print(value)
+            if value > bestVal:
+                bestVal = value
+                bestMove = [move]
+            if value == bestVal:
+                bestMove.append(move)
+            if bestVal >= beta:
+                break
+            if bestVal > alpha:
+                alpha = bestVal 
+        return bestVal, np.random.choice(bestMove)
+    else:
+        bestMove = None
+        bestVal = float('inf')
+        for move in valid_moves:    
+            newState = deepcopy(cur_state)
+            newState.act_move(move)
+            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            #if(depth == 2):
+                 #print(value)
+            if value < bestVal:
+                bestVal = value
+                bestMove = [move]
+            if value == bestVal:
+                bestMove.append(move)
+            if alpha >= bestVal:
+                break
+            if bestVal < beta:
+                beta = bestVal
+        return bestVal, np.random.choice(bestMove)
+
 def computePerBlock(block):
         # 3 | 2 | 3
         # ---------
