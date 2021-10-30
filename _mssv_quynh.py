@@ -101,32 +101,54 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
                 beta = bestVal
         return bestVal, np.random.choice(bestMove)
 
-def add(arr, number):
+
+def add(cur_state: State, arr, number):
     result = 0
     row_sum = np.sum(arr, 1)
     col_sum = np.sum(arr, 0)
     diag_sum_topleft = arr.trace()
     diag_sum_topright = arr[::-1].trace()
 
-    number_of_row = np.count_nonzero(row_sum == 2)
-    result -= number_of_row * number
+    if cur_state.player_to_move == 1:
+        number_of_row = np.count_nonzero(row_sum == 2)
+        result -= number_of_row * number
 
-    number_of_col = np.count_nonzero(col_sum == 2)
-    result -= number_of_col * number
-    if diag_sum_topleft == 2:
-        result -= number
-    if diag_sum_topright == 2:
-        result -= number
+        number_of_col = np.count_nonzero(col_sum == 2)
+        result -= number_of_col * number
+        if diag_sum_topleft == 2:
+            result -= number
+        if diag_sum_topright == 2:
+            result -= number
 
-    number_of_row = np.count_nonzero(row_sum == -2)
-    result += number_of_row * number
+        number_of_row = np.count_nonzero(row_sum == -2)
+        result += number_of_row * number
 
-    number_of_col = np.count_nonzero(col_sum == -2)
-    result += number_of_col * number
-    if diag_sum_topleft == -2:
-        result += number
-    if diag_sum_topright == -2:
-        result += number
+        number_of_col = np.count_nonzero(col_sum == -2)
+        result += number_of_col * number
+        if diag_sum_topleft == -2:
+            result += number
+        if diag_sum_topright == -2:
+            result += number
+    else:
+        number_of_row = np.count_nonzero(row_sum == 2)
+        result -= number_of_row * number
+
+        number_of_col = np.count_nonzero(col_sum == 2)
+        result -= number_of_col * number
+        if diag_sum_topleft == 2:
+            result += number
+        if diag_sum_topright == 2:
+            result += number
+
+        number_of_row = np.count_nonzero(row_sum == -2)
+        result -= number_of_row * number
+
+        number_of_col = np.count_nonzero(col_sum == -2)
+        result -= number_of_col * number
+        if diag_sum_topleft == -2:
+            result -= number
+        if diag_sum_topright == -2:
+            result -= number
     return result
 
 def evalFunction(cur_state: State):
@@ -138,7 +160,7 @@ def evalFunction(cur_state: State):
     new_shape = cur_state.global_cells.reshape(3, 3)
     finalScore = 0
 
-    finalScore += add(new_shape, 100)
+    finalScore += add(cur_state, new_shape, 100)
 
     for block in cur_state.blocks:
         # Suppose player is O, competitor is X
@@ -146,6 +168,6 @@ def evalFunction(cur_state: State):
             finalScore += 30
         if cur_state.game_result(block) == cur_state.X:
             finalScore -= 30
-        finalScore += add(block, 10)
+        finalScore += add(cur_state, block, 10)
 
     return finalScore
