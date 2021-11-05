@@ -169,7 +169,7 @@ def play_auto(player_X, player_O, rule = 1):
 
 #play_auto('_MSSV', 'random_agent')
 #play_step_by_step('_MSSV', 'random_agent')
-play_step_by_step('_1911186', '_1915976')
+play_step_by_step('random_agent', '_1911186')
 
 '_mssv_quynh'
 '_1911186'

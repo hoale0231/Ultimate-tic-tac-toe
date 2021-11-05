@@ -89,7 +89,7 @@ for i in range(100):
     if i % 10 == 0:
         print(f'Done: {i}%')
 
-    rs = main('random_agent', '_1911186')
+    rs = main('_1915976', '_1911186_1915976_1914900')
     if rs == 'O':
         cntO += 1
     if rs == 'X':
@@ -98,7 +98,7 @@ for i in range(100):
         cntDraw += 1
 
 print(f'X Win: {cntX}\n O Win: {cntO}\n Draw:{cntDraw}') 
-
+'_1911186_1915976_1914900'
 '_mssv_quynh'
 '_1911186'
 'random_agent'

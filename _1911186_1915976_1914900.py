@@ -53,13 +53,13 @@ def select_move(cur_state: State, remain_time, winner = None):
 
 def alphabeta(cur_state: State, depth, alpha, beta, player):
     if depth == 0:
-        return evalFunction(cur_state), None
+        return evalFunction(cur_state, player), None
 
     valid_moves = cur_state.get_valid_moves
     if valid_moves == []:
-        return evalFunction(cur_state), None
+        return evalFunction(cur_state, player), None
     if len(valid_moves) == 1:
-        return evalFunction(cur_state), valid_moves[0]
+        return evalFunction(cur_state, player), valid_moves[0]
     #if depth == 2:
         #print('====================')
     if player == 1:
@@ -101,14 +101,14 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
                 beta = bestVal
         return bestVal, np.random.choice(bestMove)
 
-def evalFunction(cur_state: State):
+def evalFunction(cur_state: State, p):
     globalMatrix = cur_state.global_cells.reshape(3,3)
     player = cur_state.player_to_move
     # Check if game is over
     if cur_state.game_result(globalMatrix) is not None:
-        if cur_state.game_result(globalMatrix) == cur_state.player_to_move:
+        if cur_state.game_result(globalMatrix) == player:
             return 100000
-        if cur_state.game_result(globalMatrix) == - cur_state.player_to_move:
+        if cur_state.game_result(globalMatrix) == - player:
             return -100000
     
     # Find dangerous blocks
@@ -141,20 +141,20 @@ def evalFunction(cur_state: State):
             for cell in row:
                 if cell == player:
                     if winBonus: 
-                        score += 5
+                        score += 10
                     elif dangerous:
-                        score += 3
+                        score += 5
                     else:
                         score -= 1
                 if cell == - player:
                     if winBonus:
-                        score += 6
+                        score += 10
                     elif dangerous:
-                        score -= 3
+                        score -= 5
                     elif flag:
                         score += 0
                     else:
-                        score += 1
+                        score += 3
         totalScore += abs(score) * score
     return totalScore
 
