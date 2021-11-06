@@ -2,6 +2,7 @@ import numpy as np
 from state import State, UltimateTTT_Move
 from copy import deepcopy
 
+
 class MoveFirst:
     phase = 1
     target = -1
@@ -41,34 +42,36 @@ class MoveFirst:
                 if move.x == MoveFirst.oppostie // 3 and move.y == MoveFirst.oppostie % 3:
                     return move
 
+
 def select_move(cur_state: State, remain_time, winner=None):
     valid_moves = cur_state.get_valid_moves
     if len(valid_moves) != 0:
         if cur_state.player_to_move == State.X:
-            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
-            #return MoveFirst.selectMove(cur_state)
+            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1, 1)[1]
+            # return MoveFirst.selectMove(cur_state)
         else:
-            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
+            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1, -1)[1]
+
     return None
 
-def alphabeta(cur_state: State, depth, alpha, beta, player):
+
+def alphabeta(cur_state: State, depth, alpha, beta, player, flag):
     if depth == 0:
-        return evalFunction(cur_state), None
+        return evalFunction(cur_state, flag), None
 
     valid_moves = cur_state.get_valid_moves
     if valid_moves == []:
-        return evalFunction(cur_state), None
+        return evalFunction(cur_state, flag), None
     if len(valid_moves) == 1:
-        return evalFunction(cur_state), valid_moves[0]
-    #if depth == 2:
-        #print('====================')
+        return evalFunction(cur_state, flag), valid_moves[0]
     if player == 1:
         bestMove = []
         bestVal = float('-inf')
         for move in valid_moves:
             newState = deepcopy(cur_state)
             newState.act_move(move)
-            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            value = alphabeta(newState, depth - 1, alpha,
+                              beta, -player, flag)[0]
             # if depth == 2:
             #     print(value)
             if value > bestVal:
@@ -87,7 +90,8 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
         for move in valid_moves:
             newState = deepcopy(cur_state)
             newState.act_move(move)
-            value = alphabeta(newState, depth - 1, alpha, beta, -player)[0]
+            value = alphabeta(newState, depth - 1, alpha,
+                              beta, -player, flag)[0]
             # if(depth == 2):
             #     print(value)
             if value < bestVal:
@@ -102,14 +106,13 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
         return bestVal, np.random.choice(bestMove)
 
 
-def add(cur_state: State, arr, number):
+def add(cur_state: State, arr, number, flag):
     result = 0
     row_sum = np.sum(arr, 1)
     col_sum = np.sum(arr, 0)
     diag_sum_topleft = arr.trace()
     diag_sum_topright = arr[::-1].trace()
-
-    if cur_state.player_to_move == 1:
+    if flag == -1:
         number_of_row = np.count_nonzero(row_sum == 2)
         result -= number_of_row * number
 
@@ -129,12 +132,12 @@ def add(cur_state: State, arr, number):
             result += number
         if diag_sum_topright == -2:
             result += number
-    else:
+    elif flag == 1:
         number_of_row = np.count_nonzero(row_sum == 2)
-        result -= number_of_row * number
+        result += number_of_row * number
 
         number_of_col = np.count_nonzero(col_sum == 2)
-        result -= number_of_col * number
+        result += number_of_col * number
         if diag_sum_topleft == 2:
             result += number
         if diag_sum_topright == 2:
@@ -149,9 +152,11 @@ def add(cur_state: State, arr, number):
             result -= number
         if diag_sum_topright == -2:
             result -= number
+
     return result
 
-def evalFunction(cur_state: State):
+
+def evalFunction(cur_state: State, flag):
     if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) is not None:
         if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) == cur_state.player_to_move:
             return 100000
@@ -160,7 +165,7 @@ def evalFunction(cur_state: State):
     new_shape = cur_state.global_cells.reshape(3, 3)
     finalScore = 0
 
-    finalScore += add(cur_state, new_shape, 100)
+    finalScore += add(cur_state, new_shape, 100, flag)
 
     for block in cur_state.blocks:
         # Suppose player is O, competitor is X
@@ -168,6 +173,6 @@ def evalFunction(cur_state: State):
             finalScore += 30
         if cur_state.game_result(block) == cur_state.X:
             finalScore -= 30
-        finalScore += add(cur_state, block, 10)
+        finalScore += add(cur_state, block, 10, flag)
 
     return finalScore
