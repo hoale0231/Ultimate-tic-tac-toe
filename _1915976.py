@@ -45,8 +45,7 @@ def select_move(cur_state: State, remain_time, winner = None):
     valid_moves = cur_state.get_valid_moves 
     if len(valid_moves) != 0:
         if cur_state.player_to_move == State.X:
-            return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
-            # return MoveFirst.selectMove(cur_state)
+            return MoveFirst.selectMove(cur_state)
         else:
             return alphabeta(cur_state, 2, float('-inf'), float('inf'), 1)[1]
     return None
@@ -101,152 +100,65 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
                 beta = bestVal
         return bestVal, np.random.choice(bestMove)
 
-
-'''Di Tien'''
-
-# def add(arr, number):
-#     result = 0
-#     row_sum = np.sum(arr, 1)
-#     col_sum = np.sum(arr, 0)
-#     diag_sum_topleft = arr.trace()
-#     diag_sum_topright = arr[::-1].trace()
-
-#     number_of_row = np.count_nonzero(row_sum == 2)
-#     result -= number_of_row * number
-
-#     number_of_col = np.count_nonzero(col_sum == 2)
-#     result -= number_of_col * number
-#     if diag_sum_topleft == 2:
-#         result -= number
-#     if diag_sum_topright == 2:
-#         result -= number
-
-#     number_of_row = np.count_nonzero(row_sum == -2)
-#     result += number_of_row * number
-
-#     number_of_col = np.count_nonzero(col_sum == -2)
-#     result += number_of_col * number
-#     if diag_sum_topleft == -2:
-#         result += number
-#     if diag_sum_topright == -2:
-#         result += number
-
-#     if (0 not in arr[0]):
-#         if (row_sum[0] == -1):  result-=number
-#         else:   result+=number
-#     if (0 not in arr[1]):
-#         if (row_sum[1] == -1):  result-=number
-#         else:   result+=number
-#     if (0 not in arr[2]):
-#         if (row_sum[2] == -1):  result-=number
-#         else:   result+=number
-#     if (arr[0][0] != 0 and arr[1][0] != 0 and arr[2][0] != 0):
-#         if (col_sum[0] == -1):  result-=number
-#         else:   result+=number
-#     if (arr[0][1] != 0 and arr[1][1] != 0 and arr[2][1] != 0):
-#         if (col_sum[1] == -1):  result-=number
-#         else:   result+=number
-#     if (arr[0][2] != 0 and arr[1][2] != 0 and arr[2][2] != 0):
-#         if (col_sum[2] == -1):  result-=number
-#         else:   result+=number
-#     if (arr[0][0] != 0 and arr[1][1] != 0 and arr[2][2] != 0):
-#         if (diag_sum_topleft == -1):    result-=number
-#         else:   result+=number
-#     if (arr[0][2] != 0 and arr[1][1] != 0 and arr[2][0] != 0):
-#         if (diag_sum_topright == -1):    result-=number
-#         else:   result+=number
-
-#     MatrixScore = np.array([[3,2,3],
-#                             [2,4,2],
-#                             [3,2,3]])
-
-#     result -= np.sum(arr*MatrixScore)
-#     return result
-
-
-# def evalFunction(cur_state: State):
-#     if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) is not None:
-#         if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) == cur_state.player_to_move:
-#             return 100000
-#         if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) == - cur_state.player_to_move:
-#             return -100000
-#     new_shape = cur_state.global_cells.reshape(3, 3)
-#     finalScore = 0
-
-#     for block in cur_state.blocks:
-#         # Suppose player is O, competitor is X
-#         if cur_state.game_result(block) == cur_state.O:
-#             finalScore += 100
-#             # print('vc')
-#         elif cur_state.game_result(block) == cur_state.X:
-#             finalScore -= 100
-#         #     print('dmm')
-#         else:    
-#             finalScore += add(block, 10)
-#     return finalScore
-
-
-##########################################################################
-'''Di Hau'''
 def add(arr, number):
     result = 0
+
     row_sum = np.sum(arr, 1)
     col_sum = np.sum(arr, 0)
     diag_sum_topleft = arr.trace()
     diag_sum_topright = arr[::-1].trace()
 
     number_of_row = np.count_nonzero(row_sum == 2)
-    result += number_of_row * number
-
-    number_of_col = np.count_nonzero(col_sum == 2)
-    result += number_of_col * number
-    if diag_sum_topleft == 2:
-        result += number
-    if diag_sum_topright == 2:
-        result += number
-
-    number_of_row = np.count_nonzero(row_sum == -2)
     result -= number_of_row * number
 
-    number_of_col = np.count_nonzero(col_sum == -2)
+    number_of_col = np.count_nonzero(col_sum == 2)
     result -= number_of_col * number
-    if diag_sum_topleft == -2:
+    if diag_sum_topleft == 2:
         result -= number
-    if diag_sum_topright == -2:
+    if diag_sum_topright == 2:
         result -= number
 
+    number_of_row = np.count_nonzero(row_sum == -2)
+    result += number_of_row * number
+
+    number_of_col = np.count_nonzero(col_sum == -2)
+    result += number_of_col * number
+    if diag_sum_topleft == -2:
+        result += number
+    if diag_sum_topright == -2:
+        result += number
+
     if (0 not in arr[0]):
-        if (row_sum[0] == -1):  result+=number
-        else:   result-=number
+        if (row_sum[0] == -1):  result-=number
+        else:   result+=number
     if (0 not in arr[1]):
-        if (row_sum[1] == -1):  result+=number
-        else:   result-=number
+        if (row_sum[1] == -1):  result-=number
+        else:   result+=number
     if (0 not in arr[2]):
-        if (row_sum[2] == -1):  result+=number
-        else:   result-=number
+        if (row_sum[2] == -1):  result-=number
+        else:   result+=number
     if (arr[0][0] != 0 and arr[1][0] != 0 and arr[2][0] != 0):
-        if (col_sum[0] == -1):  result+=number
-        else:   result-=number
+        if (col_sum[0] == -1):  result-=number
+        else:   result+=number
     if (arr[0][1] != 0 and arr[1][1] != 0 and arr[2][1] != 0):
-        if (col_sum[1] == -1):  result+=number
-        else:   result-=number
+        if (col_sum[1] == -1):  result-=number
+        else:   result+=number
     if (arr[0][2] != 0 and arr[1][2] != 0 and arr[2][2] != 0):
-        if (col_sum[2] == -1):  result+=number
-        else:   result-=number
+        if (col_sum[2] == -1):  result-=number
+        else:   result+=number
     if (arr[0][0] != 0 and arr[1][1] != 0 and arr[2][2] != 0):
-        if (diag_sum_topleft == -1):    result+=number
-        else:   result-=number
+        if (diag_sum_topleft == -1):    result-=number
+        else:   result+=number
     if (arr[0][2] != 0 and arr[1][1] != 0 and arr[2][0] != 0):
-        if (diag_sum_topright == -1):    result+=number
-        else:   result-=number
+        if (diag_sum_topright == -1):    result-=number
+        else:   result+=number
 
     MatrixScore = np.array([[3,2,3],
                             [2,4,2],
                             [3,2,3]])
 
-    result += np.sum(arr*MatrixScore)
+    result -= np.sum(arr*MatrixScore)*5
     return result
-
 
 def evalFunction(cur_state: State):
     if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) is not None:
@@ -260,11 +172,9 @@ def evalFunction(cur_state: State):
     for block in cur_state.blocks:
         # Suppose player is O, competitor is X
         if cur_state.game_result(block) == cur_state.O:
-            finalScore -= 100
-            # print('vc')
+            finalScore += 200
         elif cur_state.game_result(block) == cur_state.X:
-            finalScore += 100
-        #     print('dmm')
+            finalScore -= 150
         else:    
-            finalScore += add(block, 10)
+            finalScore += add(block, 20)
     return finalScore
