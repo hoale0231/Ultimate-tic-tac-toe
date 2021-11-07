@@ -52,13 +52,13 @@ def select_move(cur_state: State, remain_time, winner = None):
 
 def alphabeta(cur_state: State, depth, alpha, beta, player):
     if depth == 0:
-        return evalFunction(cur_state), None
+        return evalFunction(cur_state, player), None
 
     valid_moves = cur_state.get_valid_moves
     if valid_moves == []:
-        return evalFunction(cur_state), None
+        return evalFunction(cur_state, player), None
     if len(valid_moves) == 1:
-        return evalFunction(cur_state), valid_moves[0]
+        return evalFunction(cur_state, player), valid_moves[0]
     #if depth == 2:
         #print('====================')
     if player == 1:
@@ -100,81 +100,60 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
                 beta = bestVal
         return bestVal, np.random.choice(bestMove)
 
-def add(arr, number):
-    result = 0
-
-    row_sum = np.sum(arr, 1)
-    col_sum = np.sum(arr, 0)
-    diag_sum_topleft = arr.trace()
-    diag_sum_topright = arr[::-1].trace()
-
-    number_of_row = np.count_nonzero(row_sum == 2)
-    result -= number_of_row * number
-
-    number_of_col = np.count_nonzero(col_sum == 2)
-    result -= number_of_col * number
-    if diag_sum_topleft == 2:
-        result -= number
-    if diag_sum_topright == 2:
-        result -= number
-
-    number_of_row = np.count_nonzero(row_sum == -2)
-    result += number_of_row * number
-
-    number_of_col = np.count_nonzero(col_sum == -2)
-    result += number_of_col * number
-    if diag_sum_topleft == -2:
-        result += number
-    if diag_sum_topright == -2:
-        result += number
-
-    if (0 not in arr[0]):
-        if (row_sum[0] == -1):  result-=number
-        else:   result+=number
-    if (0 not in arr[1]):
-        if (row_sum[1] == -1):  result-=number
-        else:   result+=number
-    if (0 not in arr[2]):
-        if (row_sum[2] == -1):  result-=number
-        else:   result+=number
-    if (arr[0][0] != 0 and arr[1][0] != 0 and arr[2][0] != 0):
-        if (col_sum[0] == -1):  result-=number
-        else:   result+=number
-    if (arr[0][1] != 0 and arr[1][1] != 0 and arr[2][1] != 0):
-        if (col_sum[1] == -1):  result-=number
-        else:   result+=number
-    if (arr[0][2] != 0 and arr[1][2] != 0 and arr[2][2] != 0):
-        if (col_sum[2] == -1):  result-=number
-        else:   result+=number
-    if (arr[0][0] != 0 and arr[1][1] != 0 and arr[2][2] != 0):
-        if (diag_sum_topleft == -1):    result-=number
-        else:   result+=number
-    if (arr[0][2] != 0 and arr[1][1] != 0 and arr[2][0] != 0):
-        if (diag_sum_topright == -1):    result-=number
-        else:   result+=number
-
-    MatrixScore = np.array([[3,2,3],
-                            [2,4,2],
-                            [3,2,3]])
-
-    result -= np.sum(arr*MatrixScore)*5
-    return result
-
-def evalFunction(cur_state: State):
-    if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) is not None:
-        if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) == cur_state.player_to_move:
+def evalFunction(cur_state: State, p):
+    globalMatrix = cur_state.global_cells.reshape(3,3)
+    player = cur_state.player_to_move
+    # Check if game is over
+    if cur_state.game_result(globalMatrix) is not None:
+        if cur_state.game_result(globalMatrix) == player:
             return 100000
-        if cur_state.game_result(cur_state.global_cells.reshape(3, 3)) == - cur_state.player_to_move:
+        if cur_state.game_result(globalMatrix) == - player:
             return -100000
-    new_shape = cur_state.global_cells.reshape(3, 3)
-    finalScore = 0
+    
+    # Find dangerous blocks
+    dangerousBlocks = []
+    for ir, row in enumerate(globalMatrix):
+        if sum(row) == -2 * player:
+            dangerousBlocks.append(ir * 3 + np.where(row == 0)[0][0])
+    for ic, col in enumerate(globalMatrix.transpose()):
+        if sum(col) == -2 * player:
+            dangerousBlocks.append(np.where(col == 0)[0][0] * 3 + ic)
+    if sum(globalMatrix.diagonal()) == -2 * player:
+        index0 = np.where(globalMatrix.diagonal() == 0)[0][0]
+        dangerousBlocks.append(index0 * 3 + index0)
+    if sum(globalMatrix[::-1].diagonal()) == -2 * player:
+        index0 = np.where(globalMatrix[::-1].diagonal() == 0)[0][0]
+        dangerousBlocks.append((2 - index0) * 3 + index0)
 
-    for block in cur_state.blocks:
-        # Suppose player is O, competitor is X
-        if cur_state.game_result(block) == cur_state.O:
-            finalScore += 200
-        elif cur_state.game_result(block) == cur_state.X:
-            finalScore -= 150
-        else:    
-            finalScore += add(block, 20)
-    return finalScore
+    # Calc score
+    totalScore = 0
+    for ib, block in enumerate(cur_state.blocks):
+        dangerous = ib in dangerousBlocks
+        winBonus = 0
+        score = 0
+        flag = np.sum(block == player) > np.sum(block == - player)
+        # Check if a block is over
+        if cur_state.game_result(block) != None:
+            winBonus = 1
+        # Score each cell in block
+        for row in block:
+            for cell in row:
+                if cell == player:
+                    if winBonus: 
+                        score += 10
+                    elif dangerous:
+                        score += 5
+                    
+                if cell == - player:
+                    if winBonus:
+                        score += 10
+                    elif dangerous:
+                        score -= 5
+                    elif flag:
+                        score += 0
+                    else:
+                        score += 3
+        totalScore += abs(score) * score 
+    return totalScore
+
+        
