@@ -123,7 +123,7 @@ def play_step_by_step(player_X, player_O, rule = 1):
                         is_game_done = True
                     
 
-def play_auto(player_X, player_O, rule = 1):
+def play_auto(player_X, player_O, rule = 2):
     player_1 = import_module(player_X)
     player_2 = import_module(player_O)
     if rule == 1:
@@ -138,7 +138,7 @@ def play_auto(player_X, player_O, rule = 1):
     while True:
         draw(state)
         # delay drawing
-        time.sleep(0.25)
+        time.sleep(0.5)
         
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -167,11 +167,5 @@ def play_auto(player_X, player_O, rule = 1):
         turn += 1
      
 
-#play_auto('_MSSV', 'random_agent')
-#play_step_by_step('_MSSV', 'random_agent')
-play_step_by_step('_1915976', '_1911186_1915976_1914900')
+play_auto('8','Nhom18')
 
-'_mssv_quynh'
-'_1911186'
-'random_agent'
-'_1915976'

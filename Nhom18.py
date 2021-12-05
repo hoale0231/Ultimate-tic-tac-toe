@@ -1,5 +1,5 @@
 from numpy.lib.function_base import piecewise, place
-from state import State
+from state import State_2
 from copy import deepcopy
 import numpy as np
 
@@ -7,15 +7,15 @@ X = 1
 O = -1
 aiPlayer = X
 
-def select_move(cur_state: State, remain_time, winner = None):
+def select_move(cur_state: State_2, remain_time, winner = None):
     global aiPlayer 
     aiPlayer = cur_state.player_to_move
     valid_moves = cur_state.get_valid_moves 
     if len(valid_moves) != 0:
-        return alphabeta(cur_state, 4, float('-inf'), float('inf'), 1)[1]
+        return alphabeta(cur_state, 3, float('-inf'), float('inf'), 1)[1]
     return None
 
-def alphabeta(cur_state: State, depth, alpha, beta, player):
+def alphabeta(cur_state: State_2, depth, alpha, beta, player):
     if depth == 0:
         return evalFunction(cur_state), None
 
@@ -65,7 +65,7 @@ def alphabeta(cur_state: State, depth, alpha, beta, player):
                 beta = bestVal
         return bestVal, np.random.choice(bestMove)
 
-def evalFunction(state: State):
+def evalFunction(state: State_2):
     eval = 0    
     blockresults = np.array([state.game_result(block) for block in state.blocks]).reshape(3, 3)
     for line in list(blockresults) + list(blockresults[::-1]) + [np.diag(blockresults), np.diag(blockresults[::-1])]:

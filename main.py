@@ -3,7 +3,7 @@ import time
 from importlib import import_module
 
   
-def main(player_X, player_O, rule = 1):
+def main(player_X, player_O, rule = 2):
     dict_player = {1: 'X', -1: 'O'}
     if rule == 1:
         cur_state = State()
@@ -85,11 +85,11 @@ def main(player_X, player_O, rule = 1):
 cntX = 0
 cntO = 0
 cntDraw = 0
-for i in range(1000):
+for i in range(10):
     if i % 10 == 0:
         print(f'Done: {i}%')
 
-    rs = main('random_agent', '_1911186_1915976_1914900')
+    rs = main('_mssv_quynh', '_1911186_2' )
     if rs == 'O':
         cntO += 1
     if rs == 'X':
